@@ -1,4 +1,5 @@
 #include "httpcpp/HttpClient.hpp"
+#include "httpcpp/HttpResponseParser.hpp"
 #include <stdexcept>
 #include <iostream>
 
@@ -9,7 +10,7 @@ HttpClient::HttpClient()
 {
 }
 
-std::string HttpClient::get(const std::string& url)
+HttpResponse HttpClient::get(const std::string& url)
 {
     // A simple URL parser to get host and path
     std::string temp_url = url;
@@ -33,9 +34,11 @@ std::string HttpClient::get(const std::string& url)
     std::vector<uint8_t> request_data(request.begin(), request.end());
     socket_.send(request_data);
 
-    std::vector<uint8_t> response = socket_.receive(4096);
+    std::vector<uint8_t> response_data = socket_.receive(4096);
+    std::string response_str(response_data.begin(), response_data.end());
 
-    return std::string(response.begin(), response.end());
+    HttpResponseParser parser;
+    return parser.parse(response_str);
 }
 
 } // namespace httpcpp
