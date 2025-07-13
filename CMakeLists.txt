@@ -25,7 +25,13 @@ target_link_libraries(example httpcpp)
 # Add tests
 enable_testing()
 
-find_package(GTest REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+    ut
+    GIT_REPOSITORY https://github.com/boost-ext/ut.git
+    GIT_TAG v1.1.9
+)
+FetchContent_MakeAvailable(ut)
 
 add_executable(httpcpp_tests tests/HttpResponseParserTest.cpp)
-target_link_libraries(httpcpp_tests httpcpp GTest::gtest GTest::gtest_main)
+target_link_libraries(httpcpp_tests httpcpp ut)

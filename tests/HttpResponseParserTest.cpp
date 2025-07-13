@@ -1,30 +1,33 @@
-#include "gtest/gtest.h"
+#include <boost/ut.hpp>
 #include "httpcpp/HttpResponseParser.hpp"
 
-TEST(HttpResponseParserTest, ParseValidResponse)
+int main()
 {
-    httpcpp::HttpResponseParser parser;
-    std::string rawResponse = "HTTP/1.1 200 OK\r\n"
-                              "Content-Type: text/html\r\n"
-                              "Content-Length: 13\r\n"
-                              "\r\n"
-                              "Hello, World!";
-    httpcpp::HttpResponse response = parser.parse(rawResponse);
+    using namespace boost::ut;
 
-    ASSERT_EQ(200, response.getStatusCode());
-    ASSERT_EQ("text/html", response.getHeaders().at("Content-Type"));
-    ASSERT_EQ("13", response.getHeaders().at("Content-Length"));
-    ASSERT_EQ("Hello, World!\n", response.getBody());
-}
+    "ParseValidResponse"_test = [] {
+        httpcpp::HttpResponseParser parser;
+        std::string rawResponse = "HTTP/1.1 200 OK\r\n"
+                                  "Content-Type: text/html\r\n"
+                                  "Content-Length: 13\r\n"
+                                  "\r\n"
+                                  "Hello, World!";
+        httpcpp::HttpResponse response = parser.parse(rawResponse);
 
-TEST(HttpResponseParserTest, ParseResponseWithNoBody)
-{
-    httpcpp::HttpResponseParser parser;
-    std::string rawResponse = "HTTP/1.1 204 No Content\r\n"
-                              "\r\n";
-    httpcpp::HttpResponse response = parser.parse(rawResponse);
+        expect(200_i == response.getStatusCode());
+        expect("text/html" == response.getHeaders().at("Content-Type"));
+        expect("13" == response.getHeaders().at("Content-Length"));
+        expect("Hello, World!\n" == response.getBody());
+    };
 
-    ASSERT_EQ(204, response.getStatusCode());
-    ASSERT_TRUE(response.getHeaders().empty());
-    ASSERT_TRUE(response.getBody().empty());
+    "ParseResponseWithNoBody"_test = [] {
+        httpcpp::HttpResponseParser parser;
+        std::string rawResponse = "HTTP/1.1 204 No Content\r\n"
+                                  "\r\n";
+        httpcpp::HttpResponse response = parser.parse(rawResponse);
+
+        expect(204_i == response.getStatusCode());
+        expect(response.getHeaders().empty());
+        expect(response.getBody().empty());
+    };
 }
