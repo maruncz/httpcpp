@@ -9,6 +9,7 @@ add_library(httpcpp)
 target_sources(httpcpp
     PRIVATE
         src/Socket.cpp
+        src/HttpClient.cpp
 )
 
 target_include_directories(httpcpp PUBLIC
