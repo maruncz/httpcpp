@@ -1,9 +1,10 @@
 #pragma once
 
 #include "ISocket.hpp"
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 namespace httpcpp
 {
@@ -11,8 +12,14 @@ namespace httpcpp
 class Socket : public ISocket
 {
 public:
-    Socket();
+
+    Socket() = default;
     ~Socket() override;
+    Socket(const Socket&o ) = delete;
+    Socket(Socket&& o ) = delete;
+    Socket& operator=(const Socket& o) = delete;
+    Socket& operator=(Socket&& o) = delete;
+
 
     void connect(const std::string& host, uint16_t port) override;
     void send(const std::vector<uint8_t>& data) override;
@@ -20,7 +27,7 @@ public:
     void close() override;
 
 private:
-    int sock_;
+    int sock_{-1};
 };
 
 } // namespace httpcpp

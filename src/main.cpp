@@ -1,25 +1,27 @@
-#include <iostream>
 #include "httpcpp/HttpClient.hpp"
 #include "httpcpp/HttpResponse.hpp"
+#include <exception>
+#include <iostream>
 
 int main()
 {
     try
     {
         httpcpp::HttpClient client;
-        httpcpp::HttpResponse response = client.get("http://www.google.com");
+        httpcpp::HttpResponse const response
+            = client.get("http://www.google.com");
 
-        std::cout << "Status Code: " << response.getStatusCode() << std::endl;
-        std::cout << "Headers:" << std::endl;
+        std::cout << "Status Code: " << response.getStatusCode() << '\n';
+        std::cout << "Headers:" << '\n';
         for (const auto& header : response.getHeaders()) {
-            std::cout << "  " << header.first << ": " << header.second << std::endl;
+            std::cout << "  " << header.first << ": " << header.second << '\n';
         }
-        std::cout << "Body:" << std::endl;
-        std::cout << response.getBody() << std::endl;
+        std::cout << "Body:" << '\n';
+        std::cout << response.getBody() << '\n';
     }
     catch (const std::exception& e)
     {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Error: " << e.what() << '\n';
         return 1;
     }
 

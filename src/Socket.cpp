@@ -1,17 +1,18 @@
 #include "httpcpp/Socket.hpp"
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
-#include <stdexcept>
+#include <cstdint>
 #include <cstring>
+#include <netinet/in.h>
+#include <stdexcept>
+#include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
 
 namespace httpcpp
 {
 
-Socket::Socket() : sock_(-1)
-{
-}
 
 Socket::~Socket()
 {
@@ -29,7 +30,7 @@ void Socket::connect(const std::string& host, uint16_t port)
         throw std::runtime_error("Failed to create socket");
     }
 
-    sockaddr_in serv_addr;
+    sockaddr_in serv_addr {};
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(port);
 
@@ -55,7 +56,7 @@ void Socket::send(const std::vector<uint8_t>& data)
 std::vector<uint8_t> Socket::receive(size_t max_size)
 {
     std::vector<uint8_t> buffer(max_size);
-    ssize_t bytes_received = ::recv(sock_, buffer.data(), max_size, 0);
+    ssize_t const bytes_received = ::recv(sock_, buffer.data(), max_size, 0);
     if (bytes_received < 0)
     {
         throw std::runtime_error("Receive failed");

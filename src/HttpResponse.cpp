@@ -1,4 +1,6 @@
 #include "httpcpp/HttpResponse.hpp"
+#include <map>
+#include <string>
 
 namespace httpcpp
 {

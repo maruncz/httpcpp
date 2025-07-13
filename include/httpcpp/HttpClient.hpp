@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Socket.hpp"
 #include "HttpResponse.hpp"
+#include "Socket.hpp"
 #include <string>
-#include <vector>
 
 namespace httpcpp
 {
@@ -11,7 +10,6 @@ namespace httpcpp
 class HttpClient
 {
 public:
-    HttpClient();
     HttpResponse get(const std::string& url);
 
 private:
