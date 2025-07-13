@@ -19,5 +19,6 @@ function(create_test SRC)
 endfunction()
 
 create_test(HttpResponseParserTest.cpp)
+create_test(SocketTest.cpp)
 
 

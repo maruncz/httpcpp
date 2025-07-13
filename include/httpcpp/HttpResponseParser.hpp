@@ -9,7 +9,7 @@ namespace httpcpp
 class HttpResponseParser
 {
 public:
-    HttpResponse parse(const std::string& rawResponse);
+    static HttpResponse parse(const std::string& rawResponse);
 };
 
 } // namespace httpcpp

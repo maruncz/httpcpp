@@ -1,17 +1,19 @@
 #include "httpcpp/Socket.hpp"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <stdexcept>
+#include <array>
+#include <cstdint>
+#include <cstdio>
 #include <cstring>
+#include <netdb.h>
+#include <stdexcept>
+#include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
 
 namespace httpcpp
 {
 
-Socket::Socket() : sock_(-1)
-{
-}
 
 Socket::~Socket()
 {
@@ -23,24 +25,47 @@ Socket::~Socket()
 
 void Socket::connect(const std::string& host, uint16_t port)
 {
-    sock_ = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock_ < 0)
+    std::array<char, 6> port_str {};
+    (void)snprintf(port_str.data(), port_str.size(), "%d", port);
+
+    struct addrinfo hints {};
+    std::memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family   = AF_UNSPEC; /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags    = 0;
+    hints.ai_protocol = 0;
+
+    struct addrinfo* result {nullptr};
+    int const s = getaddrinfo(host.c_str(), port_str.data(), &hints, &result);
+    if (s != 0)
     {
-        throw std::runtime_error("Failed to create socket");
+        throw std::runtime_error(std::string("getaddrinfo: ")
+                                 + gai_strerror(s));
     }
 
-    sockaddr_in serv_addr;
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(port);
-
-    if (inet_pton(AF_INET, host.c_str(), &serv_addr.sin_addr) <= 0)
+    struct addrinfo* rp {nullptr};
+    for (rp = result; rp != nullptr; rp = rp->ai_next)
     {
-        throw std::runtime_error("Invalid address/ Address not supported");
+        sock_ = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (sock_ == -1)
+        {
+            continue;
+        }
+
+        if (::connect(sock_, rp->ai_addr, rp->ai_addrlen) != -1)
+        {
+            break; /* Success */
+        }
+
+        ::close(sock_);
+        sock_ = -1;
     }
 
-    if (::connect(sock_, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        throw std::runtime_error("Connection Failed");
+    freeaddrinfo(result); /* No longer needed */
+
+    if (rp == nullptr)
+    { /* No address succeeded */
+        throw std::runtime_error("Could not connect");
     }
 }
 
@@ -55,7 +80,7 @@ void Socket::send(const std::vector<uint8_t>& data)
 std::vector<uint8_t> Socket::receive(size_t max_size)
 {
     std::vector<uint8_t> buffer(max_size);
-    ssize_t bytes_received = ::recv(sock_, buffer.data(), max_size, 0);
+    ssize_t const bytes_received = ::recv(sock_, buffer.data(), max_size, 0);
     if (bytes_received < 0)
     {
         throw std::runtime_error("Receive failed");

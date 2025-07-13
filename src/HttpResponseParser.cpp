@@ -1,6 +1,8 @@
 #include "httpcpp/HttpResponseParser.hpp"
+#include "httpcpp/HttpResponse.hpp"
+#include <cstddef>
 #include <sstream>
-#include <iostream>
+#include <string>
 
 namespace httpcpp
 {
@@ -13,16 +15,18 @@ HttpResponse HttpResponseParser::parse(const std::string& rawResponse)
 
     // Parse status line
     std::getline(ss, line);
-    if (line.rfind("HTTP/1.1 ", 0) == 0) {
+    if (line.starts_with("HTTP/1.1 "))
+    {
         response.setStatusCode(std::stoi(line.substr(9, 3)));
     }
 
     // Parse headers
-    while (std::getline(ss, line) && line != "\r") {
-        size_t colon_pos = line.find(':');
+    while (std::getline(ss, line) && line != "\r")
+    {
+        size_t const colon_pos = line.find(':');
         if (colon_pos != std::string::npos) {
-            std::string name = line.substr(0, colon_pos);
-            std::string value = line.substr(colon_pos + 2); // Skip ": "
+            std::string const name  = line.substr(0, colon_pos);
+            std::string const value = line.substr(colon_pos + 2); // Skip ": "
             response.addHeader(name, value.substr(0, value.length() - 1)); // Remove \r
         }
     }
