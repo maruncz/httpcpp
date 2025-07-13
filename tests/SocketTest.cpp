@@ -93,7 +93,7 @@ int main()
         expect(that % server_running);
 
         httpcpp::Socket client_socket;
-        client_socket.connect("127.0.0.1", port);
+        client_socket.connect("localhost", port);
 
         std::string message = "Hello, World!";
         std::vector<uint8_t> const request_data(message.begin(), message.end());
