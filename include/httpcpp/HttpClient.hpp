@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Socket.hpp"
+#include "HttpResponse.hpp"
 #include <string>
 #include <vector>
 
@@ -11,7 +12,7 @@ class HttpClient
 {
 public:
     HttpClient();
-    std::string get(const std::string& url);
+    HttpResponse get(const std::string& url);
 
 private:
     Socket socket_;
