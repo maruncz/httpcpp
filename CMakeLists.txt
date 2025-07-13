@@ -8,10 +8,16 @@ add_library(httpcpp)
 
 target_sources(httpcpp
     PRIVATE
-        src/Socket.cpp
-        src/HttpClient.cpp
-        src/HttpResponse.cpp
-        src/HttpResponseParser.cpp
+    include/httpcpp/HttpClient.hpp
+    src/HttpClient.cpp
+    include/httpcpp/HttpResponse.hpp
+    src/HttpResponse.cpp
+    include/httpcpp/HttpResponseParser.hpp
+    src/HttpResponseParser.cpp
+    include/httpcpp/ISocket.hpp
+    include/httpcpp/Socket.hpp
+    src/Socket.cpp
+    src/main.cpp
 )
 
 target_include_directories(httpcpp PUBLIC
@@ -24,8 +30,6 @@ target_link_libraries(example httpcpp)
 
 # Add tests
 enable_testing()
+add_subdirectory(tests)
 
-find_package(GTest REQUIRED)
 
-add_executable(httpcpp_tests tests/HttpResponseParserTest.cpp)
-target_link_libraries(httpcpp_tests httpcpp GTest::gtest GTest::gtest_main)

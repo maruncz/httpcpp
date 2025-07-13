@@ -12,3 +12,10 @@ cmake --build build
 ```bash
 ./build/example
 ```
+
+## Test Instructions
+
+```bash
+cmake --build build --target test
+```
+
