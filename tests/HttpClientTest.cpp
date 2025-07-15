@@ -64,6 +64,39 @@ int main()
         expect(that % std::string("Hello") == response.getBody());
     };
 
+    "HttpClientGetWithHttps"_test = []
+    {
+        MockSocket mock_socket;
+        httpcpp::HttpClient client(&mock_socket);
+
+        expect(throws<std::runtime_error>(
+            [&] { client.get("https://example.com/path"); }));
+    };
+
+    "HttpClientGetWithPort"_test = []
+    {
+        MockSocket mock_socket;
+        httpcpp::HttpClient client(&mock_socket);
+
+        httpcpp::HttpResponse const response
+            = client.get("http://example.com:8080/path");
+
+        expect(that % std::string("example.com") == mock_socket.host_);
+        expect(that % 8080 == mock_socket.port_);
+
+        std::string expected_request
+            = "GET /path HTTP/1.1\r\nHost: example.com\r\n\r\n";
+        std::vector<uint8_t> const expected_request_data(
+            expected_request.begin(), expected_request.end());
+        expect(that % expected_request_data == mock_socket.sent_data_);
+
+        expect(that % 200 == response.getStatusCode());
+        expect(that % std::string("5")
+               == response.getHeaders().at("Content-Length"));
+        expect(that % 5 == response.getBody().length());
+        expect(that % std::string("Hello") == response.getBody());
+    };
+
     "HttpClientPostWithHeaders"_test = []
     {
         MockSocket mock_socket;

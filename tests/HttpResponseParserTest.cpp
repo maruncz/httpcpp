@@ -3,6 +3,9 @@
 #include <boost/ut.hpp>
 #include <string>
 
+// NOLINTBEGIN(readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 int main()
 {
     using namespace boost::ut;
@@ -52,3 +55,6 @@ int main()
         expect(response.getBody().empty());
     };
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(readability-magic-numbers)

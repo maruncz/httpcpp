@@ -13,6 +13,9 @@
 #include <unistd.h>
 #include <vector>
 
+// NOLINTBEGIN(readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 namespace
 {
 
@@ -109,3 +112,6 @@ int main()
         server_thread.join();
     };
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(readability-magic-numbers)
