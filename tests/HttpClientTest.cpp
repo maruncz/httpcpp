@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 
+// NOLINTBEGIN(readability-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+
 class MockSocket : public httpcpp::ISocket
 {
 public:
@@ -22,7 +25,7 @@ public:
     {
         std::string response
             = "HTTP/1.1 200 OK\r\nContent-Length: 5\r\n\r\nHello";
-        return std::vector<uint8_t>(response.begin(), response.end());
+        return {response.begin(), response.end()};
     }
 
     void close() override { closed_ = true; }
@@ -61,28 +64,34 @@ int main()
         expect(that % std::string("Hello") == response.getBody());
     };
 
-    "HttpClientPost"_test = []
+    "HttpClientPostWithHeaders"_test = []
     {
         MockSocket mock_socket;
         httpcpp::HttpClient client(&mock_socket);
 
-        std::string post_body = "key=value";
-        httpcpp::HttpResponse response
-            = client.post("http://example.com/resource", post_body);
+        std::string const post_body = "key=value";
+        httpcpp::HttpResponse const response
+            = client.post("http://example.com/resource", post_body,
+                          {
+                              {"Authorization",     "Bearer token"},
+                              {       "Accept", "application/json"}
+        });
 
         expect(that % std::string("example.com") == mock_socket.host_);
         expect(that % 80 == mock_socket.port_);
 
         std::string expected_request
-            = "POST /resource HTTP/1.1\r\nHost: example.com\r\nUser-Agent: "
-              "httpcpp/1.0\r\nContent-Type: "
-              "application/x-www-form-urlencoded\r\nContent-Length: "
-              "9\r\n\r\nkey=value";
-        std::vector<uint8_t> expected_request_data(expected_request.begin(),
-                                                   expected_request.end());
+            = "POST /resource HTTP/1.1\r\nHost: "
+              "example.com\r\nAccept: application/json\r\nAuthorization: "
+              "Bearer token\r\nContent-Length: 9\r\n\r\nkey=value";
+        std::vector<uint8_t> const expected_request_data(
+            expected_request.begin(), expected_request.end());
         expect(that % expected_request_data == mock_socket.sent_data_);
 
         expect(that % 200 == response.getStatusCode());
         expect(that % std::string("Hello") == response.getBody());
     };
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(readability-magic-numbers)

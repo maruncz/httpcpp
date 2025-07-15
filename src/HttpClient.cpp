@@ -4,13 +4,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
 namespace httpcpp
 {
 
-HttpResponse HttpClient::get(const std::string& url)
+HttpResponse HttpClient::get(const std::string& url,
+                             const std::map<std::string, std::string>& headers)
 {
     // A simple URL parser to get host and path
     std::string temp_url = url;
@@ -26,8 +28,12 @@ HttpResponse HttpClient::get(const std::string& url)
 
     socket_->connect(host, 80);
 
-    std::string request
-        = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+    std::string request = "GET " + path + " HTTP/1.1\r\nHost: " + host + "\r\n";
+    for (const auto& header : headers)
+    {
+        request += header.first + ": " + header.second + "\r\n";
+    }
+    request += "\r\n";
     std::vector<uint8_t> const request_data(request.begin(), request.end());
     socket_->send(request_data);
 
@@ -38,7 +44,8 @@ HttpResponse HttpClient::get(const std::string& url)
     return HttpResponseParser::parse(response_str);
 }
 
-HttpResponse HttpClient::post(const std::string& url, const std::string& body)
+HttpResponse HttpClient::post(const std::string& url, const std::string& body,
+                              const std::map<std::string, std::string>& headers)
 {
     std::string temp_url = url;
     if (temp_url.starts_with("http://"))
@@ -54,10 +61,13 @@ HttpResponse HttpClient::post(const std::string& url, const std::string& body)
     socket_->connect(host, 80);
 
     std::string request
-        = "POST " + path + " HTTP/1.1\r\nHost: " + host
-        + "\r\nUser-Agent: httpcpp/1.0\r\nContent-Type: "
-          "application/x-www-form-urlencoded\r\nContent-Length: "
-        + std::to_string(body.length()) + "\r\n\r\n" + body;
+        = "POST " + path + " HTTP/1.1\r\nHost: " + host + "\r\n";
+    for (const auto& header : headers)
+    {
+        request += header.first + ": " + header.second + "\r\n";
+    }
+    request += "Content-Length: " + std::to_string(body.length()) + "\r\n\r\n"
+             + body;
     std::cout << "Request: " << request << '\n';
     std::vector<uint8_t> const request_data(request.begin(), request.end());
     socket_->send(request_data);
