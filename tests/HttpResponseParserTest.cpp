@@ -21,7 +21,22 @@ int main()
         expect(200_i == response.getStatusCode());
         expect("text/html" == response.getHeaders().at("Content-Type"));
         expect("13" == response.getHeaders().at("Content-Length"));
-        expect("Hello, World!\n" == response.getBody());
+        expect("Hello, World!" == response.getBody());
+    };
+
+    "ParseResponseWithNoTrailingNewlineInBody"_test = []
+    {
+        httpcpp::HttpResponseParser const parser;
+        std::string const rawResponse = "HTTP/1.1 200 OK\r\n"
+                                        "Content-Type: text/plain\r\n"
+                                        "Content-Length: 4\r\n"
+                                        "\r\n"
+                                        "test";
+        httpcpp::HttpResponse const response
+            = httpcpp::HttpResponseParser::parse(rawResponse);
+
+        expect(200_i == response.getStatusCode());
+        expect("test" == response.getBody());
     };
 
     "ParseResponseWithNoBody"_test = []

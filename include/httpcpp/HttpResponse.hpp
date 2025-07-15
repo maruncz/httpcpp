@@ -19,7 +19,7 @@ public:
     void setBody(const std::string& body);
 
 private:
-    int statusCode_;
+    int statusCode_ {-1};
     std::map<std::string, std::string> headers_;
     std::string body_;
 };

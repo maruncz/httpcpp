@@ -1,6 +1,7 @@
 #include "httpcpp/HttpResponseParser.hpp"
 #include "httpcpp/HttpResponse.hpp"
 #include <cstddef>
+#include <iterator>
 #include <sstream>
 #include <string>
 
@@ -32,12 +33,13 @@ HttpResponse HttpResponseParser::parse(const std::string& rawResponse)
     }
 
     // Parse body
-    std::string body;
-    std::string body_line;
-    while (std::getline(ss, body_line)) {
-        body += body_line + "\n";
+    if (!ss.eof())
+    {
+        std::string body;
+        body.assign(std::istreambuf_iterator<char>(ss),
+                    std::istreambuf_iterator<char>());
+        response.setBody(body);
     }
-    response.setBody(body);
 
     return response;
 }

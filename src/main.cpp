@@ -1,5 +1,6 @@
 #include "httpcpp/HttpClient.hpp"
 #include "httpcpp/HttpResponse.hpp"
+#include "httpcpp/Socket.hpp"
 #include <exception>
 #include <iostream>
 
@@ -7,7 +8,8 @@ int main()
 {
     try
     {
-        httpcpp::HttpClient client;
+        httpcpp::Socket socket;
+        httpcpp::HttpClient client(&socket);
         httpcpp::HttpResponse const response
             = client.get("http://www.google.com");
 
